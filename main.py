@@ -7,13 +7,22 @@ if(page.status_code == 200):
     soup = BeautifulSoup(page.content, 'lxml')
     #print(soup.prettify())
     all_tables = soup.find_all('table')
-
+    data = []
     for table in all_tables:
-        data = []
+
         table_body = table.find('tbody')
-        rows = table_body.find_all('tr')
-        for row in rows:
-            cols = row.find_all('td')
-            cols = [ele.text.strip() for ele in cols]
-            data.append([ele for ele in cols if ele]) # Get rid of empty values
-print(data)
+        header_check = table_body.find("tr").find("td").text.strip()
+
+        if(header_check == 'Road Number'):  #make sure it is a table with road info in it
+            rows = table_body.find_all('tr')
+            for row in rows:
+                cols = row.find_all('td')
+                cols = [ele.text.strip() for ele in cols]
+                if cols:
+                    data.append([ele for ele in cols if ele])  # Get rid of empty values
+
+    for row in data:
+        #print(row)
+        if row[0] == "3512":
+            print(row)
+            break
