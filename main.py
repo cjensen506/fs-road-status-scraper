@@ -26,3 +26,16 @@ if(page.status_code == 200):
         if row[0] == "3512":
             print(row)
             break
+
+from google.cloud import firestore
+
+# The `project` parameter is optional and represents which project the client
+# will act on behalf of. If not supplied, the client falls back to the default
+# project inferred from the environment.
+db = firestore.Client(project='fs-road-status')
+
+roads_ref = db.collection(u'roads')
+docs = roads_ref.stream()
+
+for doc in docs:
+    print(f'{doc.id} => {doc.to_dict()}')
