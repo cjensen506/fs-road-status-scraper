@@ -19,13 +19,8 @@ if(page.status_code == 200):
                 cols = row.find_all('td')
                 cols = [ele.text.strip() for ele in cols]
                 if cols:
-                    data.append([ele for ele in cols if ele])  # Get rid of empty values
+                    data.append([ele for ele in cols])  # Get rid of empty values
 
-    for row in data:
-        #print(row)
-        if row[0] == "3512":
-            print(row)
-            break
 
 from google.cloud import firestore
 
@@ -37,5 +32,21 @@ db = firestore.Client(project='fs-road-status')
 roads_ref = db.collection(u'roads')
 docs = roads_ref.stream()
 
+roads_of_interest = []
 for doc in docs:
-    print(f'{doc.id} => {doc.to_dict()}')
+    road_of_interest_dict = doc.to_dict()
+    for row in data:
+        if (row[0] == road_of_interest_dict['road_number']) & (row[1] == road_of_interest_dict['road_name']):
+            if (row[2] != road_of_interest_dict['status']) | (row[3] != road_of_interest_dict['conditions_updates']):
+                # change in road status
+                print("update road")
+                doc.reference.update({u'status': row[2]})
+                doc.reference.update({u'conditions_updates': row[3]})
+            print("hello world")
+            print(row)
+
+# for row in data:
+#     for road in roads_of_interest:
+#         if ((row[0] == road['road_number']) & (row[1] == road['road_name'])):
+#             print("found one")
+#             print(row)
